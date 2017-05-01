@@ -27,9 +27,12 @@ def readListFromFile(fname):
     lineList = [x.strip() for x in lines]
     return lineList
 
-makeDir(STOCK_DIR) # required before calling getCSV()
+def getAllStockCSVs():
+  print 'Scraping', len(stockSymbols), 'stocks...'
+  makeDir(STOCK_DIR) # required before calling getCSV()
+  for symbol in stockSymbols:
+    getCSV(symbol)
+  print 'Finished scraping', len(stockSymbols), 'stocks'
+
 stockSymbols = readListFromFile(STOCK_LIST_FILENAME)
-for symbol in stockSymbols:
-  getCSV(symbol)
-
-
+getAllStockCSVs() # comment out this line if you already have all 505 CSV files in rawCSV

@@ -18,17 +18,18 @@ def makeDir(directory):
     os.makedirs(directory)
 
 def getCSV(symbol):
-	url = CSV_LINK.replace('<SYMBOL>', symbol)
-	urllib.urlretrieve (url, STOCK_DIR + symbol + '.csv')
+  url = CSV_LINK.replace('<SYMBOL>', symbol)
+  urllib.urlretrieve (url, STOCK_DIR + symbol + '.csv')
 
 def readListFromFile(fname):
-	with open(fname) as f:
-		lines = f.readlines()
-		lineList = [x.strip() for x in lines]
-		return lineList
+  with open(fname) as f:
+    lines = f.readlines()
+    lineList = [x.strip() for x in lines]
+    return lineList
 
 makeDir(STOCK_DIR) # required before calling getCSV()
 stockSymbols = readListFromFile(STOCK_LIST_FILENAME)
 for symbol in stockSymbols:
-	getCSV(symbol)
+  getCSV(symbol)
+
 

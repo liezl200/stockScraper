@@ -58,8 +58,12 @@ def readAllStockPrices():
     with open(getCSVFilename(symbol), 'rb') as csvfile:
       reader = csv.reader(csvfile, delimiter=',')
       closePriceList = []
+      skipFirst = True
       for row in reader:
-        closePriceList.append(float(row[CLOSE_COLUMN_INDEX]))
+        if skipFirst:
+          skipFirst = False
+        else:
+          closePriceList.append(float(row[CLOSE_COLUMN_INDEX]))
       closePrices[symbol] = closePriceList[1:] # ignore the 'Close' header by slicing
   print 'Done reading closing prices into memory'
 
@@ -67,23 +71,24 @@ def readAllStockPrices():
 def readDateColumn():
   DATE_COLUMN_INDEX = 0
   with open(getCSVFilename('GOOG'), 'rb') as csvfile: # doesn't matter which stock, just read the date column
+    dates = []
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
       dates.append(row[DATE_COLUMN_INDEX])
-  return dates
+    return dates
 
 # takes an array of prices and returns the log returns
-def calculateLogReturns(prices):
+def calculateLogReturns(prices): # TODO: calculate first row?
   returns = []
-  for i in range(t-1):
-    returns.append(math.log(prices[i+1]) - math.log(prices[i]))
+  for i in range(len(prices)-1):
+    returns.append(math.log(prices[i]) - math.log(prices[i+1]))
   return returns
 
 # calculates log returns for every stock and stores it in memory (stored in the logReturns global dict)
 def calculateAllLogReturns():
   print 'Calculating returns for', len(stockSymbols), 'stocks...'
   for symbol in stockSymbols:
-    logReturns[symbol] = calculateLogReturns(symbol)
+    logReturns[symbol] = calculateLogReturns(closePrices[symbol])
   print 'Calculating returns for', len(stockSymbols), 'stocks'
 
 stockSymbols = readListFromFile(STOCK_LIST_FILENAME)
@@ -91,5 +96,7 @@ stockSymbols = readListFromFile(STOCK_LIST_FILENAME)
 dates = readDateColumn()
 readAllStockPrices() # read all closing prices of every stock into memory
 calculateAllLogReturns() # calculate log returns for every stock
+
+
 
 

@@ -3,10 +3,6 @@ import os
 import csv
 import math
 
-''' NOTES:
-NWL is the only one that is broken and has to be manually downloaded
-'''
-
 # the CSV download link with start date and end date constant
 CSV_LINK = 'http://www.google.com/finance/historical?q=<SYMBOL>&startdate=Apr+3%2C+2012&enddate=Apr+30%2C+2017&num=30&output=csv'
 
@@ -82,6 +78,7 @@ def readAllStockPrices():
           skipFirst = False
         else:
           closePriceList.append(float(row[CLOSE_COLUMN_INDEX]))
+    closePrices[symbol] = closePriceList
   print 'Done reading closing prices into memory'
 
 # reads and returns the date column from one stock CSV
@@ -134,6 +131,7 @@ def writeAllLogReturns():
       else:
         outFile.write(',')
     outFile.write('\n')
+  outFile.close()
   print 'Done writing log returns for', len(stockSymbols), 'stocks'
 
 stockSymbols = readListFromFile(STOCK_LIST_FILENAME)

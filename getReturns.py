@@ -82,7 +82,6 @@ def readAllStockPrices():
           skipFirst = False
         else:
           closePriceList.append(float(row[CLOSE_COLUMN_INDEX]))
-      closePrices[symbol] = closePriceList[1:] # ignore the 'Close' header by slicing
   print 'Done reading closing prices into memory'
 
 # reads and returns the date column from one stock CSV

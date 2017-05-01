@@ -12,14 +12,21 @@ STOCK_DIR = './rawCSV/'
 # should be a file that has one stock symbol per line
 STOCK_LIST_FILENAME = './stocklist.txt'
 
+# file for the output csv
+FIVE_YEAR_LOG_RETURNS_FNAME = './five_year_500.csv'
+
 # global stock symbol list that should be read in from ./stocklist.txt
 stockSymbols = []
+
+# global list of dates
+dateLabels = []
 
 # global close prices list for every stock symbol {symbol: [close1, close2, ...]}
 closePrices = {}
 
 # global log returns list (log(close_recent) - log(close_past))
 logReturns = {}
+
 
 # makes a new directory if it doesn't exist
 def makeDir(directory):
@@ -51,6 +58,7 @@ def getAllStockCSVs():
   print 'Finished scraping', len(stockSymbols), 'stocks'
 
 # read the closing prices for every stock into memory (stored in closePrices global dict)
+# requires that stockSymbols is populated
 def readAllStockPrices():
   print 'Reading closing prices into memory'
   CLOSE_COLUMN_INDEX = 4
@@ -68,6 +76,7 @@ def readAllStockPrices():
   print 'Done reading closing prices into memory'
 
 # reads and returns the date column from one stock CSV
+# requires that stockSymbols is populated and that we have all stock CSVs downloaded
 def readDateColumn():
   DATE_COLUMN_INDEX = 0
   with open(getCSVFilename('GOOG'), 'rb') as csvfile: # doesn't matter which stock, just read the date column
@@ -75,9 +84,9 @@ def readDateColumn():
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
       dates.append(row[DATE_COLUMN_INDEX])
-    return dates
+    return dates[1:]
 
-# takes an array of prices and returns the log returns
+# helper function that takes an array of prices and returns the log returns
 def calculateLogReturns(prices): # TODO: calculate first row?
   returns = []
   for i in range(len(prices)-1):
@@ -85,18 +94,44 @@ def calculateLogReturns(prices): # TODO: calculate first row?
   return returns
 
 # calculates log returns for every stock and stores it in memory (stored in the logReturns global dict)
+# requires that stockSymbols and closePrices are populated
 def calculateAllLogReturns():
-  print 'Calculating returns for', len(stockSymbols), 'stocks...'
+  print 'Calculating log returns for', len(stockSymbols), 'stocks...'
   for symbol in stockSymbols:
     logReturns[symbol] = calculateLogReturns(closePrices[symbol])
-  print 'Calculating returns for', len(stockSymbols), 'stocks'
+  print 'Done calculating log returns for', len(stockSymbols), 'stocks'
+
+# requires dates, stockSymbols, logReturns
+# writes to a file w/ each row corresponding to one timestamp
+def writeAllLogReturns():
+  print 'Writing log returns for', len(stockSymbols), 'stocks...'
+  outFile = open(FIVE_YEAR_LOG_RETURNS_FNAME, 'w')
+  # write header row
+  outFile.write('Date')
+  for symbol in stockSymbols:
+    outFile.write(',' + symbol)
+  outFile.write('\n')
+
+  # write data rows
+  dates = dateLabels[1:] # TODO: once we figure out how to calculate first row, add most recent date back in
+  for i in range(len(dates)):
+    outFile.write(dates[i]) # write the date
+
+    # for every date, we loop through every stock and get the entry for that date to add to the row
+    for symbol in stockSymbols:
+      if len(logReturns[symbol]) > i:
+        # note ZTS ends at Feb 1, 2013 -- if a stock doesn't have a full 5 year history then we'll leave it blank
+        outFile.write(',' + str(logReturns[symbol][i]))
+      else:
+        outFile.write(',')
+    outFile.write('\n')
+  print 'Done writing log returns for', len(stockSymbols), 'stocks'
 
 stockSymbols = readListFromFile(STOCK_LIST_FILENAME)
 # getAllStockCSVs() # comment out this line if you already have all 505 CSV files in rawCSV
-dates = readDateColumn()
+dateLabels = readDateColumn()
 readAllStockPrices() # read all closing prices of every stock into memory
 calculateAllLogReturns() # calculate log returns for every stock
-
-
+writeAllLogReturns()
 
 

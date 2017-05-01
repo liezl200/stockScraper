@@ -1,6 +1,7 @@
 import urllib
 import os
 import csv
+import math
 
 # the CSV download link with start date and end date constant
 CSV_LINK = 'http://www.google.com/finance/historical?q=<SYMBOL>&startdate=May+3%2C+2012&enddate=Apr+30%2C+2017&num=30&output=csv'
@@ -16,6 +17,9 @@ stockSymbols = []
 
 # global close prices list for every stock symbol {symbol: [close1, close2, ...]}
 closePrices = {}
+
+# global log returns list (log(close_recent) - log(close_past))
+logReturns = {}
 
 def makeDir(directory):
   if not os.path.exists(directory):
@@ -53,6 +57,19 @@ def readAllStockPrices():
       closePrices[symbol] = closePriceList[1:] # ignore the 'Close' header by slicing
   print 'Done reading closing prices into memory'
 
+def calculateReturns(prices):
+  returns = []
+  for i in range(t-1):
+    returns.append(math.log(prices[i+1]) - math.log(prices[i]))
+  return returns
+
+def calculateAllLogReturns():
+  print 'Calculating returns for', len(stockSymbols), 'stocks...'
+  for symbol in stockSymbols:
+    logReturns[symbol] = calculateReturns(symbol)
+  print 'Calculating returns for', len(stockSymbols), 'stocks'
+
 stockSymbols = readListFromFile(STOCK_LIST_FILENAME)
 # getAllStockCSVs() # comment out this line if you already have all 505 CSV files in rawCSV
-readAllStockPrices()
+readAllStockPrices() # read all closing prices of every stock into memory
+calculateAllLogReturns() # calculate log returns for every stock

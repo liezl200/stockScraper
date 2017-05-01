@@ -3,8 +3,12 @@ import os
 import csv
 import math
 
+''' NOTES:
+NWL is the only one that is broken and has to be manually downloaded
+'''
+
 # the CSV download link with start date and end date constant
-CSV_LINK = 'http://www.google.com/finance/historical?q=<SYMBOL>&startdate=May+3%2C+2012&enddate=Apr+30%2C+2017&num=30&output=csv'
+CSV_LINK = 'http://www.google.com/finance/historical?q=<SYMBOL>&startdate=Apr+3%2C+2012&enddate=Apr+30%2C+2017&num=30&output=csv'
 
 # where all the CSV files will go
 STOCK_DIR = './rawCSV/'
@@ -54,7 +58,8 @@ def getAllStockCSVs():
   print 'Scraping', len(stockSymbols), 'stocks...'
   makeDir(STOCK_DIR) # required before calling getCSV()
   for symbol in stockSymbols:
-    getCSV(symbol)
+    if symbol != 'NWL': # skip NWL, for some reason auto download doesn't work for it
+      getCSV(symbol)
   print 'Finished scraping', len(stockSymbols), 'stocks'
 
 # read the closing prices for every stock into memory (stored in closePrices global dict)
@@ -133,5 +138,6 @@ dateLabels = readDateColumn()
 readAllStockPrices() # read all closing prices of every stock into memory
 calculateAllLogReturns() # calculate log returns for every stock
 writeAllLogReturns()
+
 
 

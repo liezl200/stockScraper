@@ -1,0 +1,2 @@
+# stockScraper
+scrape google finance

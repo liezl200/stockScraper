@@ -31,7 +31,6 @@ closePrices = {}
 # global log returns list (log(close_recent) - log(close_past))
 logReturns = {}
 
-
 # makes a new directory if it doesn't exist
 def makeDir(directory):
   if not os.path.exists(directory):
@@ -44,6 +43,10 @@ def getCSVFilename(symbol):
 # download the CSV file from Google Finance
 def getCSV(symbol):
   url = CSV_LINK.replace('<SYMBOL>', symbol)
+  urllib.urlretrieve (url, getCSVFilename(symbol))
+
+def getCSVWithNYSE(symbol):
+  url = CSV_LINK.replace('<SYMBOL>', 'NYSE%3A' + symbol)
   urllib.urlretrieve (url, getCSVFilename(symbol))
 
 # read every line into a list of lines from fname, then return the list
@@ -60,6 +63,8 @@ def getAllStockCSVs():
   for symbol in stockSymbols:
     if symbol != 'NWL': # skip NWL, for some reason auto download doesn't work for it
       getCSV(symbol)
+    else:
+      getCSVWithNYSE('NWL')
   print 'Finished scraping', len(stockSymbols), 'stocks'
 
 # read the closing prices for every stock into memory (stored in closePrices global dict)

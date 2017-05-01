@@ -143,6 +143,3 @@ dateLabels = readDateColumn()
 readAllStockPrices() # read all closing prices of every stock into memory
 calculateAllLogReturns() # calculate log returns for every stock
 writeAllLogReturns()
-
-
-

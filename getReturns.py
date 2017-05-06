@@ -109,7 +109,7 @@ def calculateAllLogReturns():
 
 # requires dates, stockSymbols, logReturns
 # writes to a file w/ each row corresponding to one timestamp
-def writeAllLogReturns():
+def writeAllLogReturns(onlyFullHistories=True):
   print 'Writing log returns for', len(stockSymbols), 'stocks...'
   outFile = open(FIVE_YEAR_LOG_RETURNS_FNAME, 'w')
   # write header row
@@ -118,21 +118,31 @@ def writeAllLogReturns():
     outFile.write(',' + symbol)
   outFile.write('\n')
 
+  fullStockSymbols = stockSymbols[:]
+  if onlyFullHistories:
+    # check if the symbol has a full history. make onlyFullHistories=True if you want all stock symbols to be written even if they don't have a full history
+    maxTimestamps = len(logReturns['GOOG'])
+    for symbol in stockSymbols:
+      if len(logReturns[symbol]) < maxTimestamps:
+        fullStockSymbols.remove(symbol)
+
   # write data rows
   dates = dateLabels[1:] # TODO: once we figure out how to calculate first row, add most recent date back in
   for i in range(len(dates)):
     outFile.write(dates[i]) # write the date
 
     # for every date, we loop through every stock and get the entry for that date to add to the row
-    for symbol in stockSymbols:
+    for symbol in fullStockSymbols:
       if len(logReturns[symbol]) > i:
-        # note ZTS ends at Feb 1, 2013 -- if a stock doesn't have a full 5 year history then we'll leave it blank
+        # note ZTS ends at Feb 1, 2013 -- if a stock doesn't have a full 5 year history then we'll leave the unfilled timestamps blank
         outFile.write(',' + str(logReturns[symbol][i]))
       else:
         outFile.write(',')
     outFile.write('\n')
   outFile.close()
-  print 'Done writing log returns for', len(stockSymbols), 'stocks'
+  print 'Done writing log returns for', len(fullStockSymbols), 'stocks.',
+  if onlyFullHistories:
+    print len(stockSymbols) - len(fullStockSymbols), 'had an incomplete history for the specified date range.'
 
 stockSymbols = readListFromFile(STOCK_LIST_FILENAME)
 # getAllStockCSVs() # comment out this line if you already have all 505 CSV files in rawCSV

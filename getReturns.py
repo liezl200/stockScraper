@@ -110,6 +110,18 @@ def calculateAllLogReturns():
     logReturns[symbol] = calculateLogReturns(closePrices[symbol])
   print 'Done calculating log returns for', len(stockSymbols), 'stocks'
 
+# helper function to find the stocks that don't have full histories and separate the full ones from the not-full ones
+def getFullStockSymbols(stockSymbols, dataDict):
+  fullStockSymbols = stockSymbols[:]
+  removedStockSymbols = []
+  # check if the symbol has a full history. make onlyFullHistories=True if you want all stock symbols to be written even if they don't have a full history
+  maxTimestamps = len(dataDict['GOOG'])
+  for symbol in stockSymbols:
+    if len(dataDict[symbol]) < maxTimestamps:
+      fullStockSymbols.remove(symbol)
+      removedStockSymbols.append((symbol, len(dataDict[symbol])))
+  return fullStockSymbols, removedStockSymbols
+
 # requires dates, stockSymbols, logReturns
 # writes to a file w/ each row corresponding to one timestamp
 def writeAllLogReturns(onlyFullHistories=True):
@@ -121,15 +133,8 @@ def writeAllLogReturns(onlyFullHistories=True):
     outFile.write(',' + symbol)
   outFile.write('\n')
 
-  fullStockSymbols = stockSymbols[:]
-  removedStockSymbols = []
   if onlyFullHistories:
-    # check if the symbol has a full history. make onlyFullHistories=True if you want all stock symbols to be written even if they don't have a full history
-    maxTimestamps = len(logReturns['GOOG'])
-    for symbol in stockSymbols:
-      if len(logReturns[symbol]) < maxTimestamps:
-        fullStockSymbols.remove(symbol)
-        removedStockSymbols.append((symbol, len(logReturns[symbol])))
+    fullStockSymbols, removedStockSymbols = getFullStockSymbols(stockSymbols, logReturns)
 
   # write data rows
   dates = dateLabels[1:] # TODO: once we figure out how to calculate first row, add most recent date back in
@@ -159,15 +164,8 @@ def writeAllPrices(onlyFullHistories=True):
     outFile.write(',' + symbol)
   outFile.write('\n')
 
-  fullStockSymbols = stockSymbols[:]
-  removedStockSymbols = []
   if onlyFullHistories:
-    # check if the symbol has a full history. make onlyFullHistories=True if you want all stock symbols to be written even if they don't have a full history
-    maxTimestamps = len(closePrices['GOOG'])
-    for symbol in stockSymbols:
-      if len(closePrices[symbol]) < maxTimestamps:
-        fullStockSymbols.remove(symbol)
-        removedStockSymbols.append((symbol, len(closePrices[symbol])))
+    fullStockSymbols, removedStockSymbols = getFullStockSymbols(stockSymbols, closePrices)
 
   # write data rows
   dates = dateLabels[1:]

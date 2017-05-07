@@ -167,7 +167,7 @@ def writeAllPrices(onlyFullHistories=True):
     for symbol in stockSymbols:
       if len(closePrices[symbol]) < maxTimestamps:
         fullStockSymbols.remove(symbol)
-        removedStockSymbols.append(symbol)
+        removedStockSymbols.append((symbol, len(closePrices[symbol])))
 
   # write data rows
   dates = dateLabels[1:]

@@ -122,12 +122,14 @@ def writeAllLogReturns(onlyFullHistories=True):
   outFile.write('\n')
 
   fullStockSymbols = stockSymbols[:]
+  removedStockSymbols = []
   if onlyFullHistories:
     # check if the symbol has a full history. make onlyFullHistories=True if you want all stock symbols to be written even if they don't have a full history
     maxTimestamps = len(logReturns['GOOG'])
     for symbol in stockSymbols:
       if len(logReturns[symbol]) < maxTimestamps:
         fullStockSymbols.remove(symbol)
+        removedStockSymbols.append((symbol, len(logReturns[symbol])))
 
   # write data rows
   dates = dateLabels[1:] # TODO: once we figure out how to calculate first row, add most recent date back in
@@ -146,43 +148,7 @@ def writeAllLogReturns(onlyFullHistories=True):
   print 'Done writing log returns for', len(fullStockSymbols), 'stocks.',
   if onlyFullHistories:
     print len(stockSymbols) - len(fullStockSymbols), 'had an incomplete history for the specified date range.'
-
-# requires dates, stockSymbols, logReturns
-# writes to a file w/ each row corresponding to one timestamp
-def writeAllPrices(onlyFullHistories=True):
-  print 'Writing log returns for', len(stockSymbols), 'stocks...'
-  outFile = open(FIVE_YEAR_PRICES_FNAME, 'w')
-  # write header row
-  outFile.write('Date')
-  for symbol in stockSymbols:
-    outFile.write(',' + symbol)
-  outFile.write('\n')
-
-  fullStockSymbols = stockSymbols[:]
-  if onlyFullHistories:
-    # check if the symbol has a full history. make onlyFullHistories=True if you want all stock symbols to be written even if they don't have a full history
-    maxTimestamps = len(logReturns['GOOG'])
-    for symbol in stockSymbols:
-      if len(logReturns[symbol]) < maxTimestamps:
-        fullStockSymbols.remove(symbol)
-
-  # write data rows
-  dates = dateLabels[1:] # TODO: once we figure out how to calculate first row, add most recent date back in
-  for i in range(len(dates)):
-    outFile.write(dates[i]) # write the date
-
-    # for every date, we loop through every stock and get the entry for that date to add to the row
-    for symbol in fullStockSymbols:
-      if len(logReturns[symbol]) > i:
-        # note ZTS ends at Feb 1, 2013 -- if a stock doesn't have a full 5 year history then we'll leave the unfilled timestamps blank
-        outFile.write(',' + str(logReturns[symbol][i]))
-      else:
-        outFile.write(',')
-    outFile.write('\n')
-  outFile.close()
-  print 'Done writing log returns for', len(fullStockSymbols), 'stocks.',
-  if onlyFullHistories:
-    print len(stockSymbols) - len(fullStockSymbols), 'had an incomplete history for the specified date range.'
+    print 'Removed symbols: ', removedStockSymbols
 
 def writeAllPrices(onlyFullHistories=True):
   print 'Writing prices for', len(stockSymbols), 'stocks...'
@@ -194,15 +160,17 @@ def writeAllPrices(onlyFullHistories=True):
   outFile.write('\n')
 
   fullStockSymbols = stockSymbols[:]
+  removedStockSymbols = []
   if onlyFullHistories:
     # check if the symbol has a full history. make onlyFullHistories=True if you want all stock symbols to be written even if they don't have a full history
     maxTimestamps = len(closePrices['GOOG'])
     for symbol in stockSymbols:
       if len(closePrices[symbol]) < maxTimestamps:
         fullStockSymbols.remove(symbol)
+        removedStockSymbols.append(symbol)
 
   # write data rows
-  dates = dateLabels[1:] # TODO: once we figure out how to calculate first row, add most recent date back in
+  dates = dateLabels[1:]
   for i in range(len(dates)):
     outFile.write(dates[i]) # write the date
 
@@ -218,6 +186,7 @@ def writeAllPrices(onlyFullHistories=True):
   print 'Done writing prices for', len(fullStockSymbols), 'stocks.',
   if onlyFullHistories:
     print len(stockSymbols) - len(fullStockSymbols), 'had an incomplete history for the specified date range.'
+    print 'Removed symbols: ', removedStockSymbols
 
 
 stockSymbols = readListFromFile(STOCK_LIST_FILENAME)

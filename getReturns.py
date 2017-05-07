@@ -127,9 +127,14 @@ def getFullStockSymbols(stockSymbols, dataDict):
 def writeAllLogReturns(onlyFullHistories=True):
   print 'Writing log returns for', len(stockSymbols), 'stocks...'
   outFile = open(FIVE_YEAR_LOG_RETURNS_FNAME, 'w')
+
+  fullStockSymbols = stockSymbols
+  if onlyFullHistories:
+    fullStockSymbols, removedStockSymbols = getFullStockSymbols(stockSymbols, closePrices)
+
   # write header row
   outFile.write('Date')
-  for symbol in stockSymbols:
+  for symbol in fullStockSymbols:
     outFile.write(',' + symbol)
   outFile.write('\n')
 
@@ -158,14 +163,17 @@ def writeAllLogReturns(onlyFullHistories=True):
 def writeAllPrices(onlyFullHistories=True):
   print 'Writing prices for', len(stockSymbols), 'stocks...'
   outFile = open(FIVE_YEAR_PRICES_FNAME, 'w')
+
+  fullStockSymbols = stockSymbols
+  if onlyFullHistories:
+    fullStockSymbols, removedStockSymbols = getFullStockSymbols(stockSymbols, closePrices)
+
   # write header row
   outFile.write('Date')
-  for symbol in stockSymbols:
+  for symbol in fullStockSymbols:
     outFile.write(',' + symbol)
   outFile.write('\n')
 
-  if onlyFullHistories:
-    fullStockSymbols, removedStockSymbols = getFullStockSymbols(stockSymbols, closePrices)
 
   # write data rows
   dates = dateLabels[1:]

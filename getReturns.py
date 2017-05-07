@@ -111,16 +111,23 @@ def calculateAllLogReturns():
   print 'Done calculating log returns for', len(stockSymbols), 'stocks'
 
 # helper function to find the stocks that don't have full histories and separate the full ones from the not-full ones
-def getFullStockSymbols(stockSymbols, dataDict):
-  fullStockSymbols = stockSymbols[:]
+def getFullStockSymbols(symbols, dataDict):
+  fullStockSymbols = symbols[:]
   removedStockSymbols = []
   # check if the symbol has a full history. make onlyFullHistories=True if you want all stock symbols to be written even if they don't have a full history
   maxTimestamps = len(dataDict['GOOG'])
-  for symbol in stockSymbols:
+  for symbol in symbols:
     if len(dataDict[symbol]) < maxTimestamps:
       fullStockSymbols.remove(symbol)
       removedStockSymbols.append((symbol, len(dataDict[symbol])))
   return fullStockSymbols, removedStockSymbols
+
+# helper function to write header of CSV
+def writeHeaderRow(symbols, outFile):
+  outFile.write('Date')
+  for symbol in symbols:
+    outFile.write(',' + symbol)
+  outFile.write('\n')
 
 # requires dates, stockSymbols, logReturns
 # writes to a file w/ each row corresponding to one timestamp
@@ -133,10 +140,7 @@ def writeAllLogReturns(onlyFullHistories=True):
     fullStockSymbols, removedStockSymbols = getFullStockSymbols(stockSymbols, closePrices)
 
   # write header row
-  outFile.write('Date')
-  for symbol in fullStockSymbols:
-    outFile.write(',' + symbol)
-  outFile.write('\n')
+  writeHeaderRow(fullStockSymbols, outFile)
 
   if onlyFullHistories:
     fullStockSymbols, removedStockSymbols = getFullStockSymbols(stockSymbols, logReturns)
@@ -169,10 +173,7 @@ def writeAllPrices(onlyFullHistories=True):
     fullStockSymbols, removedStockSymbols = getFullStockSymbols(stockSymbols, closePrices)
 
   # write header row
-  outFile.write('Date')
-  for symbol in fullStockSymbols:
-    outFile.write(',' + symbol)
-  outFile.write('\n')
+  writeHeaderRow(fullStockSymbols, outFile)
 
 
   # write data rows

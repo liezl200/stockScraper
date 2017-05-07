@@ -60,10 +60,10 @@ def getAllStockCSVs():
   print 'Scraping', len(stockSymbols), 'stocks...'
   makeDir(STOCK_DIR) # required before calling getCSV()
   for symbol in stockSymbols:
-    if symbol != 'NWL': # skip NWL, for some reason auto download doesn't work for it
+    if symbol != 'NWL': # Note: AMT just doesn't have data on Google Finance for some reason, although Yahoo Finance has it
       getCSV(symbol)
     else:
-      getCSVWithNYSE('NWL')
+      getCSVWithNYSE(symbol) # certain symbols don't like having q=symbol but need q=NYSE:symbol
   print 'Finished scraping', len(stockSymbols), 'stocks'
 
 # read the closing prices for every stock into memory (stored in closePrices global dict)

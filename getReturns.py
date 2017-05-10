@@ -88,7 +88,7 @@ def readAllStockPrices():
 # requires that stockSymbols is populated and that we have all stock CSVs downloaded
 def readDateColumn():
   DATE_COLUMN_INDEX = 0
-  with open(getCSVFilename('GOOG'), 'rb') as csvfile: # doesn't matter which stock, just read the date column
+  with open(getCSVFilename(stockSymbols[0]), 'rb') as csvfile: # doesn't matter which stock, just read the date column
     dates = []
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
@@ -115,7 +115,8 @@ def getFullStockSymbols(symbols, dataDict):
   fullStockSymbols = symbols[:]
   removedStockSymbols = []
   # check if the symbol has a full history. make onlyFullHistories=True if you want all stock symbols to be written even if they don't have a full history
-  maxTimestamps = len(dataDict['GOOG'])
+  maxTimestamps = max([len(dataDict[sym]) for sym in symbols])
+  # maxTimestamps = len(dataDict['GOOG']) # you can hardcode this if you know a symbol that has a full history in your specified time range
   for symbol in symbols:
     if len(dataDict[symbol]) < maxTimestamps:
       fullStockSymbols.remove(symbol)

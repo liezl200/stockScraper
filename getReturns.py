@@ -96,7 +96,7 @@ def readDateColumn():
     return dates[1:]
 
 # helper function that takes an array of prices and returns the log returns
-def calculateLogReturns(prices): # TODO: calculate first row?
+def calculateLogReturns(prices):
   returns = []
   for i in range(len(prices)-1):
     returns.append(math.log(prices[i]) - math.log(prices[i+1]))
@@ -147,7 +147,7 @@ def writeAllLogReturns(onlyFullHistories=True):
     fullStockSymbols, removedStockSymbols = getFullStockSymbols(stockSymbols, logReturns)
 
   # write data rows
-  dates = dateLabels[1:] # TODO: once we figure out how to calculate first row, add most recent date back in
+  dates = dateLabels[1:]
   for i in range(len(dates)):
     outFile.write(dates[i]) # write the date
 
